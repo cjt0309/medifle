@@ -97,7 +97,7 @@ public class Login_Activity extends AppCompatActivity {
 
                     if (role != null) {
                         if (role.equals("의사")) {
-                            startActivity(new Intent(Login_Activity.this, DoctorActivity.class)
+                            startActivity(new Intent(Login_Activity.this, PatientListActivity.class)
                                     .putExtra("useremail", user.getEmail()));
                         } else if (role.equals("환자")) {
                             startActivity(new Intent(Login_Activity.this, PatientActivity.class)
