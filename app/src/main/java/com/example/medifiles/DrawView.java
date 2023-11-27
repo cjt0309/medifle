@@ -37,13 +37,13 @@ public class DrawView extends View {
         // 초기 설정 메소드
         path = new Path();
         drawPaint = new Paint();
-        brushSize = 20; // 초기 굵기
+        brushSize = 10; // 초기 굵기
         lastBrushSize = brushSize; // 마지막 사용된 펜 굵기를 저장
         eraserSize = 50; // 지우개 굵기 초기값
         isEraserActive = false; // 지우개 활성화 상태
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
-        drawPaint.setStrokeWidth(20); // 기본 굵기 설정
+        drawPaint.setStrokeWidth(10); // 기본 굵기 설정
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);

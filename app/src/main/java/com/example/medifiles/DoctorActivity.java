@@ -36,6 +36,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 //firebase
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -46,6 +48,11 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DoctorActivity extends AppCompatActivity {
+    // Firebase Storage 관련 변수 추가
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+    // 환자 UID를 가져올 변수 추가
+    private String patientUid;
     private ActivityResultLauncher<Intent> screenCaptureLauncher;
     private static final int REQUEST_CODE = 999;
     private int mScreenDensity;
@@ -88,9 +95,7 @@ public class DoctorActivity extends AppCompatActivity {
         }
     };
 
-    // Firebase Storage 관련 변수 추가
-    private FirebaseStorage storage;
-    private StorageReference storageRef;
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -99,16 +104,26 @@ public class DoctorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_doctor);
         requirePermission();
 
+        // Intent에서 patientUid를 가져옴
+        Intent intent = getIntent();
+        if (intent != null) {
+            patientUid = intent.getStringExtra("patientUid");
+        }
+
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mScreenDensity = metrics.densityDpi;
         widthPixels = metrics.widthPixels;
         heightPixels = metrics.heightPixels;
 
-        // Firebase Storage 초기화
+        // Firebase 초기화 및 storageRef 초기화
         storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
 
+        // patientUid를 이용해 Firebase Storage 경로 설정
+        if (patientUid != null) {
+            storageRef = storage.getReference("patients/" + patientUid + "/videos/");
+            // 이제 storageRef를 사용하여 영상 업로드 등을 수행할 수 있습니다.
+        }
 
         mMediaRecorder = new MediaRecorder();
         mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
@@ -152,28 +167,23 @@ public class DoctorActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
 //화면 녹화를 시작
     private void startScreenRecording() {
-        Log.d("여기냐", "여기냐!??!");
         //녹화 시작 로직
         record_intent = new Intent(this, MediaProjectionAccessService.class);
-        Log.d("여기냐", "여기냐2");
         startForegroundService(record_intent);
-        Log.d("여기냐", "여기냐3");
         currentVideoPath = getNewVideoFilePath(); // 새로운 파일 경로 생성
-        Log.d("여기냐", "여기냐4");
         initRecorder();
-        Log.d("여기냐", "여기냐5");
         shareScreen();
-        Log.d("여기냐", "여기냐6");
         //floatingview 로직
         // 시스템 오버레이 권한 확인
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(DoctorActivity.this)) {
             // 권한이 없으면 시스템 오버레이 권한 요청
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE);
-        } else {
-            // 권한이 있는 경우 FloatingViewService 시작
-            startFloatingViewService();
         }
+//        else {
+//            // 권한이 있는 경우 FloatingViewService 시작
+//            startFloatingViewService();
+//        }
         isRecording = true; // 녹화 상태를 true로 변경 녹화 되고 있는거면 트루임
     }
 
@@ -220,33 +230,35 @@ public class DoctorActivity extends AppCompatActivity {
     }
 
     private void uploadVideoToFirebase(String filePath) {
-        // 파일 URI 생성
-        Uri fileUri = Uri.fromFile(new File(filePath));
+        // null 체크 추가
+        if (storageRef != null) {
+            // 파일 URI 생성
+            Uri fileUri = Uri.fromFile(new File(filePath));
 
-        // Firebase Storage에 저장할 파일명 설정
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String fileName = "video_" + timeStamp + ".mp4";
+            // Firebase Storage에 저장할 파일명 설정
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            String fileName = "video_" + timeStamp + ".mp4";
 
-        // Firebase Storage 참조 생성
-        StorageReference videoRef = storageRef.child("videos/" + fileName);
+            // 사용자 UID로 저장소 참조 생성
+            StorageReference userStorageRef = storageRef.child(fileName);
 
-        // 파일 업로드
-        videoRef.putFile(fileUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    // 업로드 성공
-                    Toast.makeText(DoctorActivity.this, "업로드 성공", Toast.LENGTH_SHORT).show();
-
-                    // 여기서 필요하다면 업로드된 파일의 다운로드 URL을 가져올 수도 있습니다.
-                    videoRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        String downloadUrl = uri.toString();
-                        // 이제 downloadUrl을 사용할 수 있습니다.
+            // 파일 업로드
+            userStorageRef.putFile(fileUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // 업로드 성공
+                        Toast.makeText(DoctorActivity.this, "업로드 성공", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        // 업로드 실패
+                        Toast.makeText(DoctorActivity.this, "업로드 실패", Toast.LENGTH_SHORT).show();
                     });
-                })
-                .addOnFailureListener(e -> {
-                    // 업로드 실패
-                    Toast.makeText(DoctorActivity.this, "업로드 실패", Toast.LENGTH_SHORT).show();
-                });
+        } else {
+            // storageRef가 null일 때의 처리
+            Toast.makeText(DoctorActivity.this, "Firebase Storage 초기화에 실패했습니다.", Toast.LENGTH_SHORT).show();
+        }
     }
+
+
 
     //파일경로
     private String getNewVideoFilePath() {
@@ -309,21 +321,17 @@ public class DoctorActivity extends AppCompatActivity {
 
     private void initRecorder() {
         try {
-            Log.d("여기냐", "여기냐씨발1");
+
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-            Log.d("여기냐", "여기냐씨발2");
             mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4); // 출력 형식을 MPEG_4로 변경 화질 개선을 위해.
-            Log.d("여기냐", "여기냐씨발3");
 
             // 파일명에 현재 시간의 타임스탬프 추가
             String currentTime = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-            Log.d("여기냐", "여기냐씨발4");
             String outputPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/video_" + currentTime + ".mp4";
-            Log.d("여기냐", "여기냐씨발5");
             mMediaRecorder.setOutputFile(outputPath);
-            Log.d("여기냐", "여기냐씨발6");
+
             mMediaRecorder.setVideoSize(widthPixels,heightPixels);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
             mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
