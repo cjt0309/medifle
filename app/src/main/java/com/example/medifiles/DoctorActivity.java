@@ -247,6 +247,14 @@ public class DoctorActivity extends AppCompatActivity {
                     .addOnSuccessListener(taskSnapshot -> {
                         // 업로드 성공
                         Toast.makeText(DoctorActivity.this, "업로드 성공", Toast.LENGTH_SHORT).show();
+
+                        // 업로드된 동영상의 다운로드 URL을 가져와서 로그에 출력
+                        userStorageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String downloadUrl = uri.toString();
+                            Log.d("DoctorActivity", "Uploaded Video URL: " + downloadUrl);
+                        }).addOnFailureListener(e -> {
+                            Log.e("DoctorActivity", "Failed to get download URL", e);
+                        });
                     })
                     .addOnFailureListener(e -> {
                         // 업로드 실패
@@ -257,6 +265,7 @@ public class DoctorActivity extends AppCompatActivity {
             Toast.makeText(DoctorActivity.this, "Firebase Storage 초기화에 실패했습니다.", Toast.LENGTH_SHORT).show();
         }
     }
+
 
 
 

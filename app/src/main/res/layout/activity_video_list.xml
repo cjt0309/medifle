@@ -5,12 +5,15 @@
     android:layout_height="match_parent"
     tools:context=".VideoListActivity">
 
-    <ListView
-        android:id="@+id/videoListView"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
+        android:background="#FFFFFF"
         android:divider="@android:color/darker_gray"
-        android:dividerHeight="0.5dp"
-        android:padding="16dp" />
+        android:dividerHeight="1dp"/>
 
 </RelativeLayout>

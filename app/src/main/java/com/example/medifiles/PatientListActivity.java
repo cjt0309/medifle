@@ -86,11 +86,14 @@ public class PatientListActivity extends AppCompatActivity {
                             return;  // 중복된 UID를 방지하기 위해 추가
                         }
                     }
+
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
                         // 에러 처리를 여기에 추가하세요.
                     }
                 });
+
+        // 이 부분에서 return 문 추가
         return null;
     }
 
