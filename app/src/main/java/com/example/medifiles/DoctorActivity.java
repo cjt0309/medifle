@@ -167,24 +167,24 @@ public class DoctorActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
 //화면 녹화를 시작
     private void startScreenRecording() {
-        //녹화 시작 로직
+        // 녹화 시작 로직
         record_intent = new Intent(this, MediaProjectionAccessService.class);
         startForegroundService(record_intent);
         currentVideoPath = getNewVideoFilePath(); // 새로운 파일 경로 생성
         initRecorder();
         shareScreen();
-        //floatingview 로직
+
         // 시스템 오버레이 권한 확인
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(DoctorActivity.this)) {
             // 권한이 없으면 시스템 오버레이 권한 요청
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE);
+        } else {
+            // 권한이 있는 경우 FloatingViewService 시작
+            startFloatingViewService();
         }
-//        else {
-//            // 권한이 있는 경우 FloatingViewService 시작
-//            startFloatingViewService();
-//        }
-        isRecording = true; // 녹화 상태를 true로 변경 녹화 되고 있는거면 트루임
+
+        isRecording = true; // 녹화 상태를 true로 변경 녹화 되고 있는 거면 트루임
     }
 
     //화면 녹화 일시 정지
@@ -252,6 +252,11 @@ public class DoctorActivity extends AppCompatActivity {
                         userStorageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                             String downloadUrl = uri.toString();
                             Log.d("DoctorActivity", "Uploaded Video URL: " + downloadUrl);
+
+                            // 업로드 성공 시 PatientListActivity로 이동
+                            Intent patientListIntent = new Intent(DoctorActivity.this, PatientListActivity.class);
+                            startActivity(patientListIntent);
+                            finish(); // 현재 액티비티 종료
                         }).addOnFailureListener(e -> {
                             Log.e("DoctorActivity", "Failed to get download URL", e);
                         });

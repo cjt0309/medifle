@@ -34,15 +34,13 @@ public class VideoListActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         videoList = new ArrayList<>();
-        // 람다 표현식을 사용하여 OnVideoClickListener 인터페이스 구현
         adapter = new VideoListAdapter(videoList, this::onVideoClick);
         recyclerView.setAdapter(adapter);
 
-        // Firebase Storage에서 동영상 목록을 가져오는 메서드 호출
         getVideoListFromFirebase();
     }
 
-    private void onVideoClick(String videoUrl) {
+    private void onVideoClick(String videoUrl, String videoTitle) {
         Intent intent = new Intent(this, VideoPlayerActivity.class);
         intent.putExtra("videoUrl", videoUrl);
         startActivity(intent);
@@ -58,10 +56,13 @@ public class VideoListActivity extends AppCompatActivity {
             StorageReference videosRef = storage.getReference().child("patients").child(uid).child("videos");
 
             videosRef.listAll().addOnSuccessListener(listResult -> {
-                videoList.clear(); // 기존 목록을 비워주고 새로 가져온 목록으로 갱신
+                videoList.clear();
                 for (StorageReference item : listResult.getItems()) {
                     item.getDownloadUrl().addOnSuccessListener(uri -> {
-                        videoList.add(uri.toString());
+                        String videoUrl = uri.toString();
+                        String videoTitle = item.getName(); // 동영상의 제목을 가져옴
+                        videoList.add(videoUrl);
+                        adapter.addVideoTitle(videoTitle);
                         adapter.notifyDataSetChanged();
                     });
                 }

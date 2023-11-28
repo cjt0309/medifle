@@ -17,10 +17,11 @@
 
         <ImageView
             android:id="@+id/videoThumbnail"
+            android:padding="150dp"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/video" />
+            android:src="@drawable/play" />
 
         <TextView
             android:id="@+id/videoTitle"

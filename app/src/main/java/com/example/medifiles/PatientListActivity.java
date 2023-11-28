@@ -58,18 +58,11 @@ public class PatientListActivity extends AppCompatActivity {
         // ListView 아이템 클릭 이벤트 처리
         userListView.setOnItemClickListener((parent, view, position, id) -> {
             // 선택한 환자의 UID 가져오기
-            String selectedPatientUid = getUserUid(position);
-
-            // DoctorActivity로 전환하는 Intent 생성
-            Intent doctorIntent = new Intent(PatientListActivity.this, DoctorActivity.class);
-            doctorIntent.putExtra("patientUid", selectedPatientUid);
-
-            // DoctorActivity로 이동
-            startActivity(doctorIntent);
+            getUserUid(position);
         });
     }
 
-    private String getUserUid(int position) {
+    private void getUserUid(int position) {
         // 선택한 환자의 UID 가져오기
         DatabaseReference selectedUserRef = database.getReference("users");
         selectedUserRef.orderByChild("username").equalTo(userList.get(position))
@@ -92,9 +85,6 @@ public class PatientListActivity extends AppCompatActivity {
                         // 에러 처리를 여기에 추가하세요.
                     }
                 });
-
-        // 이 부분에서 return 문 추가
-        return null;
     }
 
 }

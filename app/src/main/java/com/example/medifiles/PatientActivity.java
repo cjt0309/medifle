@@ -22,7 +22,6 @@ import java.util.List;
 
 public class PatientActivity extends AppCompatActivity {
 
-    private String useremail;
     private RecyclerView recyclerView;
     private MessageAdapter messageAdapter;
     private List<Message> messageList;
@@ -34,16 +33,6 @@ public class PatientActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient);
-
-        // Intent에서 데이터 가져오기
-        Intent intent = getIntent();
-        if (intent != null) {
-            useremail = intent.getStringExtra("useremail");
-        }
-
-        if (useremail != null) {
-            Toast.makeText(this, "환영합니다, " + useremail + "님!", Toast.LENGTH_SHORT).show();
-        }
 
         recyclerView = findViewById(R.id.recyclerViewChat);
         recyclerView.setHasFixedSize(true);
