@@ -2,70 +2,72 @@ package com.example.medifiles;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ListView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class VideoListActivity extends AppCompatActivity {
 
-    private ListView videoListView;
-    private ArrayList<VideoItem> videoList;
-    private FirebaseDatabase database;
-    private FirebaseAuth auth;
-    private VideoAdapter adapter;
+    private RecyclerView recyclerView;
+    private VideoListAdapter adapter;
+    private List<String> videoList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_list);
 
-        videoListView = findViewById(R.id.videoListView);
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         videoList = new ArrayList<>();
-        adapter = new VideoAdapter(this, videoList);
-        videoListView.setAdapter(adapter);
+        // 람다 표현식을 사용하여 OnVideoClickListener 인터페이스 구현
+        adapter = new VideoListAdapter(videoList, this::onVideoClick);
+        recyclerView.setAdapter(adapter);
 
-        database = FirebaseDatabase.getInstance();
-        auth = FirebaseAuth.getInstance();
+        // Firebase Storage에서 동영상 목록을 가져오는 메서드 호출
+        getVideoListFromFirebase();
+    }
 
-        FirebaseUser currentUser = auth.getCurrentUser();
+    private void onVideoClick(String videoUrl) {
+        Intent intent = new Intent(this, VideoPlayerActivity.class);
+        intent.putExtra("videoUrl", videoUrl);
+        startActivity(intent);
+    }
+
+    private void getVideoListFromFirebase() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
         if (currentUser != null) {
-            String currentUserUid = currentUser.getUid();
+            String uid = currentUser.getUid();
+            StorageReference videosRef = storage.getReference().child("patients").child(uid).child("videos");
 
-            DatabaseReference videosRef = database.getReference("patients/" + currentUserUid + "/videos");
-            videosRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        String videoName = snapshot.getKey();
-                        String videoLength = snapshot.child("length").getValue(String.class); // 변경된 부분
-                        // 썸네일 이미지는 그냥 video로 설정
-                        VideoItem videoItem = new VideoItem("video", videoName, videoLength);
-                        videoList.add(videoItem);
-                    }
-                    adapter.notifyDataSetChanged();
+            videosRef.listAll().addOnSuccessListener(listResult -> {
+                videoList.clear(); // 기존 목록을 비워주고 새로 가져온 목록으로 갱신
+                for (StorageReference item : listResult.getItems()) {
+                    item.getDownloadUrl().addOnSuccessListener(uri -> {
+                        videoList.add(uri.toString());
+                        adapter.notifyDataSetChanged();
+                    });
                 }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // 에러 처리를 여기에 추가하세요.
-                }
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "동영상 목록을 가져오는 데 실패했습니다.", Toast.LENGTH_SHORT).show();
             });
-        } else {
-            Intent loginIntent = new Intent(VideoListActivity.this, Login_Activity.class);
-            startActivity(loginIntent);
-            finish();
         }
     }
 }
