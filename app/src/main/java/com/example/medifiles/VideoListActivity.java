@@ -33,6 +33,11 @@ public class VideoListActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager.setReverseLayout(true);
+        mLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(mLayoutManager);
+
         videoList = new ArrayList<>();
         adapter = new VideoListAdapter(videoList, this::onVideoClick);
         recyclerView.setAdapter(adapter);
