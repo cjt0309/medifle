@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,14 +25,24 @@ public class VideoListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private VideoListAdapter adapter;
     private List<String> videoList;
+    private ImageButton button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_list);
 
+        button = findViewById(R.id.exit);
+        button.setOnClickListener(view -> {
+            Intent intent = new Intent(VideoListActivity.this, PatientActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
 
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setReverseLayout(true);

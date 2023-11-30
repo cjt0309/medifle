@@ -120,13 +120,10 @@ public class PatientActivity extends AppCompatActivity {
 
     public void onCardViewClick(View view) {
         int cardId = view.getId();
-
         if (cardId == R.id.qna) {
-            // "질의응답 시스템" CardView를 클릭한 경우
-            // 추가 동작 또는 새로운 화면으로 전환 코드를 작성하세요.
+            Intent intent = new Intent(this, Chat.class);
+            startActivity(intent);
         } else if (cardId == R.id.video) {
-            // "공유된 영상 저장소" CardView를 클릭한 경우
-            // 새로운 화면으로 전환
             Intent intent = new Intent(this, VideoListActivity.class);
             startActivity(intent);
         }

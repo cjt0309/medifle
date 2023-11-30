@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     tools:context=".VideoListActivity">
 
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
@@ -15,5 +17,12 @@
         android:background="#FFFFFF"
         android:divider="@android:color/darker_gray"
         android:dividerHeight="1dp"/>
+
+    <ImageButton
+        android:id="@+id/exit"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/baseline_logout_24"/>
 
 </RelativeLayout>
