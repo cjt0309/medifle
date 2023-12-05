@@ -46,7 +46,7 @@ public class Chat extends AppCompatActivity {
     MessageAdapter messageAdapter;
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
-    private static final String MY_SECRET_KEY = "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";
+    private static final String MY_SECRET_KEY = "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";
 
     OkHttpClient client;
 
@@ -56,7 +56,9 @@ public class Chat extends AppCompatActivity {
 
         if (currentUser != null) {
             // 사용자의 ID를 기반으로 한 Firebase 데이터베이스 참조를 얻습니다.
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("chats").child(currentUser.getUid());
+            DatabaseReference databaseReference =
+                    FirebaseDatabase.getInstance().getReference().child("chats")
+                            .child(currentUser.getUid());
 
             // 각 메시지에 대해 고유한 키를 생성합니다.
             String key = databaseReference.push().getKey();
@@ -169,7 +171,8 @@ public class Chat extends AppCompatActivity {
         JSONObject object = new JSONObject();
         try {
             //모델명 변경
-            object.put("model", "gpt-3.5-turbo");
+            object.put("model", "\n" +
+                    "ftjob-tutEnkJujmYvoSjOy5xXuz5R");
             object.put("messages", arr);
         } catch (JSONException e) {
             e.printStackTrace();

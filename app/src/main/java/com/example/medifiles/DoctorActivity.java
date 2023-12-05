@@ -121,8 +121,7 @@ public class DoctorActivity extends AppCompatActivity {
 
         // patientUid를 이용해 Firebase Storage 경로 설정
         if (patientUid != null) {
-            storageRef = storage.getReference("patients/" + patientUid + "/videos/");
-            // 이제 storageRef를 사용하여 영상 업로드 등을 수행할 수 있습니다.
+            storageRef = storage.getReference("patients/" + patientUid + "/videos/");            // 이제 storageRef를 사용하여 영상 업로드 등을 수행할 수 있습니다.
         }
 
         mMediaRecorder = new MediaRecorder();

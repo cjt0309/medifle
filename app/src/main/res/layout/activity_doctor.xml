@@ -20,12 +20,12 @@
         android:textColor="@color/black"/>
 
     <TextView
-        android:layout_width="213dp"
+        android:layout_width="221dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginTop="15dp"
         android:letterSpacing="0.02"
-        android:text="화면녹화해서 환자한테 보여줄거니까 제대로 진료하셈"
+        android:text="진료 시작 시 아래의 버튼을 눌러 화면녹화를 진행해주세요."
         android:textColor="#6C6C6C"
         android:textSize="16dp" />
 

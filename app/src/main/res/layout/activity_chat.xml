@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:text="무엇이든 물어보쇼잉"
+        android:text=" "
         android:textSize="28dp" />
 
     <RelativeLayout

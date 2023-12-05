@@ -42,10 +42,11 @@ public class PatientActivity extends AppCompatActivity {
 
         messageList = new ArrayList<>();
         messageAdapter = new MessageAdapter(messageList);
-        recyclerView.setAdapter(messageAdapter);
 
+        recyclerView.setAdapter(messageAdapter);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        reference = FirebaseDatabase.getInstance().getReference("chats").child(firebaseUser.getUid());
+        reference = FirebaseDatabase.getInstance().getReference("chats")
+                .child(firebaseUser.getUid());
 
         reference.addValueEventListener(new ValueEventListener() {
             @Override

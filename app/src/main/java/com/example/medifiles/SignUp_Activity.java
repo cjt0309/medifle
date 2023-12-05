@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
@@ -58,12 +59,17 @@ public class SignUp_Activity extends AppCompatActivity {
                 String str_email = email.getText().toString();
                 String str_password = password.getText().toString();
 
+                // 비밀번호 유효성 검사를 위한 정규표현식
+                String passwordPattern = "^(?=.*[A-Z])(?=.*[!@#$%^&*+=?-]).+$";
+
                 if (str_username.isEmpty()) {
                     username.setError("이름을 입력해주세요!");
                 } else if (str_email.isEmpty()) {
                     email.setError("이메일을 입력해주세요!");
                 } else if (str_password.isEmpty()) {
                     password.setError("비밀번호를 입력해주세요!");
+                } else if (!str_password.matches(passwordPattern)) {
+                    password.setError("비밀번호는 최소 한 개의 대문자와 특수문자를 포함해야 합니다!");
                 } else {
                     auth.createUserWithEmailAndPassword(str_email, str_password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -84,7 +90,11 @@ public class SignUp_Activity extends AppCompatActivity {
 
                                         startActivity(new Intent(SignUp_Activity.this, Login_Activity.class));
                                     } else {
-                                        Toast.makeText(SignUp_Activity.this, "회원가입 실패" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                                            Toast.makeText(SignUp_Activity.this, "이미 등록된 이메일입니다.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(SignUp_Activity.this, "회원가입 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
                                     }
                                 }
                             });

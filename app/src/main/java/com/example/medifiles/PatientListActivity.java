@@ -34,11 +34,8 @@ public class PatientListActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, userList);
         userListView.setAdapter(adapter);
 
-        // Firebase 초기화
-        database = FirebaseDatabase.getInstance();
-
-        // role이 환자인 사용자들의 username 가져오기
-        DatabaseReference usersRef = database.getReference("users");
+        database = FirebaseDatabase.getInstance();        // Firebase 초기화
+        DatabaseReference usersRef = database.getReference("users");                                                         // role이 환자인 사용자들의 username 가져오기
         usersRef.orderByChild("role").equalTo("환자").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -55,25 +52,21 @@ public class PatientListActivity extends AppCompatActivity {
             }
         });
 
-        // ListView 아이템 클릭 이벤트 처리
-        userListView.setOnItemClickListener((parent, view, position, id) -> {
-            // 선택한 환자의 UID 가져오기
-            getUserUid(position);
+        userListView.setOnItemClickListener((parent, view, position, id) -> {        // ListView 아이템 클릭 이벤트 처리
+            getUserUid(position);                                                     // 선택한 환자의 UID 가져오기
+
         });
     }
 
     private void getUserUid(int position) {
-        // 선택한 환자의 UID 가져오기
-        DatabaseReference selectedUserRef = database.getReference("users");
+        DatabaseReference selectedUserRef = database.getReference("users");        // 선택한 환자의 UID 가져오기
         selectedUserRef.orderByChild("username").equalTo(userList.get(position))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            // 선택한 환자의 UID를 가져옴
-                            String selectedPatientUid = snapshot.getKey();
-                            // DoctorActivity로 전달
-                            Intent doctorIntent = new Intent(PatientListActivity.this, DoctorActivity.class);
+                            String selectedPatientUid = snapshot.getKey();                            // 선택한 환자의 UID를 가져옴
+                            Intent doctorIntent = new Intent(PatientListActivity.this, DoctorActivity.class);                            // DoctorActivity로 전달
                             doctorIntent.putExtra("patientUid", selectedPatientUid);
                             startActivity(doctorIntent);
                             return;  // 중복된 UID를 방지하기 위해 추가
