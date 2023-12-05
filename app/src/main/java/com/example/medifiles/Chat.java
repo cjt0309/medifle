@@ -46,7 +46,7 @@ public class Chat extends AppCompatActivity {
     MessageAdapter messageAdapter;
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
-    private static final String MY_SECRET_KEY = "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";
+    private static final String MY_SECRET_KEY = "your API Keys";
 
     OkHttpClient client;
 
